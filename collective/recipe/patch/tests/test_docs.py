@@ -18,10 +18,8 @@ def setUp(test):
     zc.buildout.testing.buildoutSetUp(test)
 
     # Install the recipe in develop mode
+    zc.buildout.testing.install_develop('zc.recipe.egg', test)
     zc.buildout.testing.install_develop('collective.recipe.patch', test)
-
-    # Install any other recipes that should be available in the tests
-    #zc.buildout.testing.install('collective.recipe.foobar', test)
 
 def test_suite():
     suite = unittest.TestSuite((

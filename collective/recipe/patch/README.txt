@@ -14,25 +14,72 @@ patch
 Example usage
 =============
 
-We'll start by creating a buildout that uses the recipe::
+Our demo package which will patch.
 
-    >>> write('buildout.cfg',
+    >>> mkdir(sample_buildout, 'demo')
+    >>> write(sample_buildout, 'demo', 'README.txt', " ")
+    >>> write(sample_buildout, 'demo', 'demo.py',
+    ... """# demo egg 
+    ... """)
+    >>> write(sample_buildout, 'demo', 'setup.py',
+    ... """
+    ... from setuptools import setup
+    ...
+    ... setup(
+    ...     name = "demo",
+    ...     version='1.0',
+    ...     py_modules=['demo']
+    ...     )
+    ... """)
+    >>> print system(buildout+' setup demo bdist_egg'), # doctest: +ELLIPSIS
+    Running setup script 'demo/setup.py'.
+    ...
+
+
+Create out patch.
+
+    >>> write(sample_buildout, 'demo.patch',
+    ... """diff --git demo.py demo.py
+    ... --- demo.py
+    ... +++ demo.py
+    ... @@ -1 +1,2 @@
+    ...  # demo egg
+    ... +# patching
+    ... """)
+
+
+Let now write out buildout.cfg to patch our demo package
+
+    >>> write(sample_buildout, 'buildout.cfg',
     ... """
     ... [buildout]
-    ... parts = demo-patch
+    ... parts = demo-eggs demo-patch
+    ... index = %(dist)s
+    ...
+    ... [demo-eggs]
+    ... recipe = zc.recipe.egg
+    ... eggs = demo
     ...
     ... [demo-patch]
     ... recipe = collective.recipe.patch
     ... egg = %(egg)s
     ... patch = %(patch)s
-    ... """ % { 'egg' : 'demo_egg', 'patch' : 'patches/demo_egg.patch'})
+    ... """ % { 'egg'   : 'demo==1.0', 
+    ...         'patch' : 'demo.patch',
+    ...         'dist'  : join('demo', 'dist'), })
+
+
 
 Running the buildout gives us::
 
     >>> print 'start', system(buildout) 
-    start...
-    Installing patch.
-    Unused options for test1: 'option2' 'option1'.
-    <BLANKLINE>
-
+    start Not found: demo/dist/zc.buildout/
+    ...
+    >>> ls(sample_buildout, 'eggs-patched')
+    d  demo-1.0-py2.4.egg
+    >>> cat(sample_buildout, 'demo', 'demo.py')
+    # demo egg 
+    >>> cat(sample_buildout, 'eggs-patched', 'demo-1.0-py2.4.egg', 'demo.py')
+    # demo egg 
+    # patching
 
