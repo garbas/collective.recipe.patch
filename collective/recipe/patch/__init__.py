@@ -3,6 +3,8 @@
 
 import os
 import zc.recipe.egg
+import patch as patchlib
+from os.path import join
 
 
 class Recipe(object):
@@ -20,23 +22,43 @@ class Recipe(object):
     def install(self):
         """Installer"""
         
+        patch_path = os.path.abspath(self.options['patch'])
+        egg = self.options.get('egg')
+        if egg:
+            return self.patch_egg(egg, patch_path)
+        else:
+            path = os.path.abspath(self.options['path'])
+            return self.apply_patch(path, patch_path)
+
+    def update(self):
+        """Updater"""
+        pass
+
+
+
+    def patch_egg(self, egg, patch_path):
+        """Installer"""
+        
         ws = zc.buildout.easy_install.install(
-            [self.options['egg']], self.options['eggs-directory'],
-            links           = self.buildout['buildout'].get('find-links', ''),
+            [egg], self.options['eggs-directory'],
+            links           = self.buildout['buildout'].get('find-links', '').split('\n'),
             index           = self.buildout['buildout'].get('index', ''),
             executable      = self.options['executable'],
             path            = [self.options['develop-eggs-directory']],
             newest          = self.buildout['buildout'].get('newest') == 'true',
             allow_hosts     = self.buildout['buildout'].get('allow-hosts', '*'),
             always_unzip    = 'true', )
+        egg_path = ws.require(egg)[0].location
+        return self.apply_patch(egg_path, patch_path)
 
-        egg_path = ws.require(self.options['egg'])[0].location
-        patch_path = os.path.abspath(self.options['patch'])
-        os.chdir(egg_path)
-        os.system('patch -p0 < %s' % patch_path)
+    def apply_patch(self, path, patch_path):
+#        patch_path = os.path.abspath(self.options['patch'])
+#             os.chdir(path)
+#             os.system('patch -p0 < %s' % patch_path)
 
-        return egg_path,
+        patch = patchlib.read_patch(patch_path)
+        patch['source'] = [join(path,p).strip() for p in patch['source']]
+        patch['target'] = [join(path,p).strip() for p in patch['target']]
+        patchlib.apply_patch(patch)
 
-    def update(self):
-        """Updater"""
-        pass
+        return [path]
