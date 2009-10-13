@@ -8,7 +8,7 @@ from setuptools import setup, find_packages
 def read(*rnames):
     return open(os.path.join(os.path.dirname(__file__), *rnames)).read()
 
-version = '0.1b1'
+version = '0.2b1'
 
 long_description = (
     read('README.txt')
@@ -56,7 +56,6 @@ setup(name='collective.recipe.patch',
       packages=find_packages(exclude=['ez_setup']),
       namespace_packages=['collective', 'collective.recipe'],
       include_package_data=True,
-      zip_safe=False,
       install_requires=['setuptools',
                         'zc.buildout',
                         # -*- Extra requirements: -*-
