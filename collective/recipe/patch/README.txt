@@ -1,3 +1,4 @@
+
 Supported options
 =================
 
@@ -53,33 +54,122 @@ Let now write out buildout.cfg to patch our demo package
     >>> write(sample_buildout, 'buildout.cfg',
     ... """
     ... [buildout]
-    ... parts = demo-eggs demo-patch
+    ... parts = demo-patch
     ... index = %(dist)s
-    ...
-    ... [demo-eggs]
-    ... recipe = zc.recipe.egg
-    ... eggs = demo
     ...
     ... [demo-patch]
     ... recipe = collective.recipe.patch
     ... egg = %(egg)s
     ... patch = %(patch)s
-    ... """ % { 'egg'   : 'demo==1.0', 
+    ... """ % { 'egg'   : 'demo==1.0',
     ...         'patch' : 'demo.patch',
     ...         'dist'  : join('demo', 'dist'), })
 
+Running the buildout gives us::
 
+    >>> print system(buildout)
+    Not found: demo/dist/zc.buildout/
+    ...
+    Installing demo-patch.
+    ...
+    Got demo 1.0.
+    ...
+    root: successfully patched ...develop-eggs/demo-1.0-py2.6.egg/demo.py
+
+    >>> ls(sample_buildout, 'develop-eggs', 'demo-1.0-py2.6.egg')
+    d  EGG-INFO
+    -  demo.py
+    -  demo.pyc
+    -  demo.pyo
+    >>> cat(sample_buildout, 'demo', 'demo.py')
+    # demo egg
+    >>> cat(sample_buildout, 'develop-eggs', 'demo-1.0-py2.6.egg', 'demo.py')
+    # demo egg
+    # patching
+
+We can also set an external binary to use for patching:
+
+    >>> write(sample_buildout, 'buildout.cfg',
+    ... """
+    ... [buildout]
+    ... parts = demo-patch
+    ... index = %(dist)s
+    ...
+    ... [demo-patch]
+    ... recipe = collective.recipe.patch
+    ... patch-binary = patch
+    ... egg = %(egg)s
+    ... patch = %(patch)s
+    ... """ % { 'egg'   : 'demo==1.0',
+    ...         'patch' : 'demo.patch',
+    ...         'dist'  : join('demo', 'dist'), })
 
 Running the buildout gives us::
 
-    >>> print 'start', system(buildout) 
-    start Not found: demo/dist/zc.buildout/
+    >>> print system(buildout)
+    Not found: demo/dist/zc.buildout/
     ...
-    >>> ls(sample_buildout, 'eggs-patched')
-    d  demo-1.0-py2.4.egg
+    Installing demo-patch.
+    ...
+    Got demo 1.0.
+    patching file demo.py
+    ...
+
+    >>> ls(sample_buildout, 'develop-eggs', 'demo-1.0-py2.6.egg')
+    d  EGG-INFO
+    -  demo.py
+    -  demo.py.orig
+    -  demo.pyc
+    -  demo.pyo
     >>> cat(sample_buildout, 'demo', 'demo.py')
-    # demo egg 
-    >>> cat(sample_buildout, 'eggs-patched', 'demo-1.0-py2.4.egg', 'demo.py')
-    # demo egg 
+    # demo egg
+    >>> cat(sample_buildout, 'develop-eggs', 'demo-1.0-py2.6.egg', 'demo.py')
+    # demo egg
     # patching
 
+Another possibility is to install an egg with zc.recpe.egg (or probably any
+other recipe) and patch it afterwards.
+However for this use-case it is necessary to install the egg unzipped, and the
+egg may end up in the eggs-folder instead the develop-eggs folder.
+
+    >>> write(sample_buildout, 'buildout.cfg',
+    ... """
+    ... [buildout]
+    ... parts = demo-egg demo-patch
+    ... index = %(dist)s
+    ...
+    ... [demo-egg]
+    ... recipe = zc.recipe.egg
+    ... eggs = demo
+    ... unzip = true
+    ...
+    ... [demo-patch]
+    ... recipe = collective.recipe.patch
+    ... egg = %(egg)s
+    ... patch = %(patch)s
+    ... """ % { 'egg'   : 'demo==1.0',
+    ...         'patch' : 'demo.patch',
+    ...         'dist'  : join('demo', 'dist'), })
+
+Running the buildout gives us::
+
+    >>> print system(buildout)
+    Not found: demo/dist/zc.buildout/
+    ...
+    Installing demo-egg.
+    ...
+    Got demo 1.0.
+    Installing demo-patch.
+    ...
+    root: successfully patched ...eggs/demo-1.0-py2.6.egg/demo.py
+
+    >>> ls(sample_buildout, 'eggs', 'demo-1.0-py2.6.egg')
+    d  EGG-INFO
+    -  demo.py
+    -  demo.pyc
+    -  demo.pyo
+    >>> cat(sample_buildout, 'demo', 'demo.py')
+    # demo egg
+    >>> cat(sample_buildout, 'eggs', 'demo-1.0-py2.6.egg', 'demo.py')
+    # demo egg
+    # patching

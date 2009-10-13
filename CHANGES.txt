@@ -1,3 +1,9 @@
+
+0.2 (unreleased)
+================
+
+- Added option to use external patch binary instead of bundled python-patch
+
 0.1 (xxxx-xx-xx)
 ==================
 

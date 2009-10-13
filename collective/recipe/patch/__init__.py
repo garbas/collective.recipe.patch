@@ -34,17 +34,15 @@ class Recipe(object):
         """Updater"""
         pass
 
-
-
     def patch_egg(self, egg, patch_path):
         """Installer"""
         
         ws = zc.buildout.easy_install.install(
-            [egg], self.options['eggs-directory'],
+            [egg], self.options['develop-eggs-directory'],
             links           = self.buildout['buildout'].get('find-links', '').split('\n'),
             index           = self.buildout['buildout'].get('index', ''),
             executable      = self.options['executable'],
-            path            = [self.options['develop-eggs-directory']],
+            path            = [self.options['eggs-directory']],
             newest          = self.buildout['buildout'].get('newest') == 'true',
             allow_hosts     = self.buildout['buildout'].get('allow-hosts', '*'),
             always_unzip    = 'true', )
@@ -52,13 +50,14 @@ class Recipe(object):
         return self.apply_patch(egg_path, patch_path)
 
     def apply_patch(self, path, patch_path):
-#        patch_path = os.path.abspath(self.options['patch'])
-#             os.chdir(path)
-#             os.system('patch -p0 < %s' % patch_path)
-
-        patch = patchlib.read_patch(patch_path)
-        patch['source'] = [join(path,p).strip() for p in patch['source']]
-        patch['target'] = [join(path,p).strip() for p in patch['target']]
-        patchlib.apply_patch(patch)
+        patch_binary = self.options.get('patch-binary', None)
+        if patch_binary:
+            os.chdir(path)
+            os.system('%s -p0 < %s' % (patch_binary, patch_path))
+        else:
+            patch = patchlib.read_patch(patch_path)
+            patch['source'] = [join(path,p).strip() for p in patch['source']]
+            patch['target'] = [join(path,p).strip() for p in patch['target']]
+            patchlib.apply_patch(patch)
 
         return [path]
