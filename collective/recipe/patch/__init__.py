@@ -5,6 +5,7 @@ import os
 import zc.recipe.egg
 import patch as patchlib
 from os.path import join
+from hashlib import sha1
 
 
 class Recipe(object):
@@ -13,7 +14,7 @@ class Recipe(object):
     def __init__(self, buildout, name, options):
         self.buildout, self.name, self.options = buildout, name, options
         self.egg = zc.recipe.egg.Scripts(buildout, name, options)
-
+        self.options['hashes'] = str(self.calculate_hashes(options))
         self.options['python'] = self.buildout['buildout']['python']
         self.options['executable'] = self.buildout[self.options['python']]['executable']
         self.options['eggs-directory'] = buildout['buildout']['eggs-directory']
@@ -33,6 +34,11 @@ class Recipe(object):
     def update(self):
         """Updater"""
         pass
+
+    def calculate_hashes(self, options):
+        patch_path = os.path.abspath(self.options['patch'])
+        patch_hash = sha1(open(patch_path).read()).digest()
+        return {patch_path: patch_hash}
 
     def patch_egg(self, egg, patch_path):
         """Installer"""
