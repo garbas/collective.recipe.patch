@@ -7,6 +7,7 @@ import zc.recipe.egg
 import patch as patchlib
 from os.path import join
 from hashlib import sha1
+from logging import info
 
 
 class Recipe(object):
@@ -95,6 +96,7 @@ class Recipe(object):
         """Applies a `patch` to `path`."""
         patch_binary = self.options.get('patch-binary', None)
         if patch_binary:
+            info('reading patch %s' % patch)
             os.chdir(path)
             os.system('%s -p0 < %s' % (patch_binary, patch))
         else:
