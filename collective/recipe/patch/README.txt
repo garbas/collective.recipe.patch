@@ -30,7 +30,7 @@ Our demo package which we will patch:
     >>> mkdir(sample_buildout, 'demo')
     >>> write(sample_buildout, 'demo', 'README.txt', " ")
     >>> write(sample_buildout, 'demo', 'demo.py',
-    ... """# demo egg 
+    ... """# demo egg
     ... """)
     >>> write(sample_buildout, 'demo', 'setup.py',
     ... """
@@ -71,26 +71,32 @@ Let's write out buildout.cfg to patch our demo package:
     ... patches = demo.patch
     ... """)
 
+Our final egg name depends on current python version:
+
+    >>> import sys
+    >>> demoegg = 'demo-1.0-py%d.%d.egg' % sys.version_info[:2]
+
 Running the buildout gives us:
 
     >>> print system(buildout)
-    Not found: demo/dist/zc.buildout/
+    Not found: demo/dist/...
     ...
     Installing demo-patch.
     ...
+    Getting distribution for 'demo==1.0'.
     Got demo 1.0.
     patch: reading patch .../demo.patch
     ...
-    patch: successfully patched ...develop-eggs/demo-1.0-py2.6.egg/demo.py
+    patch: successfully patched ...develop-eggs/demo-1.0-py...egg/demo.py
 
-    >>> ls(sample_buildout, 'develop-eggs', 'demo-1.0-py2.6.egg')
+    >>> ls(sample_buildout, 'develop-eggs', demoegg)
     d  EGG-INFO
     -  demo.py
     -  demo.pyc
     -  demo.pyo
     >>> cat(sample_buildout, 'demo', 'demo.py')
     # demo egg
-    >>> cat(sample_buildout, 'develop-eggs', 'demo-1.0-py2.6.egg', 'demo.py')
+    >>> cat(sample_buildout, 'develop-eggs', demoegg, 'demo.py')
     # demo egg
     # patching
 
@@ -110,7 +116,7 @@ If you have more than one patch to apply:
 
 Update your buildout.cfg to list the new patch. In this case,
 another.patch should be applied after demo.patch:
-    
+
     >>> write(sample_buildout, 'buildout.cfg',
     ... """
     ... [buildout]
@@ -127,19 +133,20 @@ another.patch should be applied after demo.patch:
 Running the buildout gives us:
 
     >>> print system(buildout)
-    Not found: demo/dist/zc.buildout/
+    Not found: demo/dist/...
     ...
     Installing demo-patch.
     ...
+    Getting distribution for 'demo==1.0'.
     Got demo 1.0.
     patch: reading patch .../demo.patch
     ...
-    patch: successfully patched ...develop-eggs/demo-1.0-py2.6.egg/demo.py
+    patch: successfully patched ...develop-eggs/demo-1.0-py...egg/demo.py
     patch: reading patch .../another.patch
     ...
-    patch: successfully patched ...develop-eggs/demo-1.0-py2.6.egg/demo.py
+    patch: successfully patched ...develop-eggs/demo-1.0-py...egg/demo.py
 
-    >>> cat(sample_buildout, 'develop-eggs', 'demo-1.0-py2.6.egg', 'demo.py')
+    >>> cat(sample_buildout, 'develop-eggs', demoegg, 'demo.py')
     # patching
 
 External binaries
@@ -163,25 +170,24 @@ We can also set an external binary to use for patching:
 Running the buildout gives us:
 
     >>> print system(buildout)
-    Not found: demo/dist/zc.buildout/
+    Not found: demo/dist/...
     ...
     Installing demo-patch.
     ...
+    Getting distribution for 'demo==1.0'.
     Got demo 1.0.
     patch: reading patch .../demo.patch
     ...
     patch: patching file demo.py
-    ...
 
-    >>> ls(sample_buildout, 'develop-eggs', 'demo-1.0-py2.6.egg')
+    >>> ls(sample_buildout, 'develop-eggs', demoegg)
     d  EGG-INFO
     -  demo.py
-    -  demo.py.orig
     -  demo.pyc
     -  demo.pyo
     >>> cat(sample_buildout, 'demo', 'demo.py')
     # demo egg
-    >>> cat(sample_buildout, 'develop-eggs', 'demo-1.0-py2.6.egg', 'demo.py')
+    >>> cat(sample_buildout, 'develop-eggs', demoegg, 'demo.py')
     # demo egg
     # patching
 
@@ -213,23 +219,24 @@ eggs-folder instead the develop-eggs folder.
 Running the buildout gives us:
 
     >>> print system(buildout)
-    Not found: demo/dist/zc.buildout/
+    Not found: demo/dist/...
     ...
     Installing demo-egg.
     ...
+    Getting distribution for 'demo==1.0'.
     Got demo 1.0.
     Installing demo-patch.
     ...
-    patch: successfully patched ...eggs/demo-1.0-py2.6.egg/demo.py
+    patch: successfully patched ...eggs/demo-1.0-py...egg/demo.py
 
-    >>> ls(sample_buildout, 'eggs', 'demo-1.0-py2.6.egg')
+    >>> ls(sample_buildout, 'eggs', demoegg)
     d  EGG-INFO
     -  demo.py
     -  demo.pyc
     -  demo.pyo
     >>> cat(sample_buildout, 'demo', 'demo.py')
     # demo egg
-    >>> cat(sample_buildout, 'eggs', 'demo-1.0-py2.6.egg', 'demo.py')
+    >>> cat(sample_buildout, 'eggs', demoegg, 'demo.py')
     # demo egg
     # patching
 
@@ -249,7 +256,7 @@ If one of the patches is broken:
 
 When you try to apply multiple patches, it will fail to apply any
 subsequent patches, letting you fix the problem:
-    
+
     >>> write(sample_buildout, 'buildout.cfg',
     ... """
     ... [buildout]
@@ -266,10 +273,11 @@ subsequent patches, letting you fix the problem:
 Running the buildout gives us:
 
     >>> print system(buildout)
-    Not found: demo/dist/zc.buildout/
+    Not found: demo/dist/...
     ...
     Installing demo-patch.
     ...
+    Getting distribution for 'demo==1.0'.
     Got demo 1.0.
     patch: reading patch .../missing-file.patch
     ...
@@ -280,7 +288,7 @@ Running the buildout gives us:
       Installing demo-patch.
     Error: could not apply .../missing-file.patch
 
-    >>> cat(sample_buildout, 'develop-eggs', 'demo-1.0-py2.6.egg', 'demo.py')
+    >>> cat(sample_buildout, 'develop-eggs', demoegg, 'demo.py')
     # demo egg
 
 Or when using an external binary:
@@ -299,9 +307,10 @@ Or when using an external binary:
     ...           demo.patch
     ... """)
     >>> print system(buildout)
-    Not found: demo/dist/zc.buildout/
+    Not found: demo/dist/...
     ...
     Installing demo-patch.
+    ...
     patch: reading patch .../missing-file.patch
     ...
     patch: patch: **** malformed patch at line 6:
@@ -309,5 +318,5 @@ Or when using an external binary:
       Installing demo-patch.
     Error: could not apply .../missing-file.patch
 
-    >>> cat(sample_buildout, 'develop-eggs', 'demo-1.0-py2.6.egg', 'demo.py')
+    >>> cat(sample_buildout, 'develop-eggs', demoegg, 'demo.py')
     # demo egg
