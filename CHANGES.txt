@@ -2,6 +2,7 @@
 ==================
 
 - made tests independent of python version
+- bring back python2.4 compatibility
 
 0.2 (2009-11-20)
 ================
