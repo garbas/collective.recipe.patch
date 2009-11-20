@@ -110,6 +110,7 @@ class Recipe(object):
     def use_patch_binary(self, path, patch):
         """Applies a `patch` to `path` using an external binary."""
         logger.info('reading patch %s' % patch)
+        logger.info('in %s...' % path)
         cwd = os.getcwd()
         try:
             os.chdir(path)
@@ -119,18 +120,19 @@ class Recipe(object):
             output = p.communicate(open(patch).read())[0]
             [logger.info(line) for line in output.strip().split('\n')]
             if p.returncode != 0:
-                zc.buildout.UserError('%s exited with status %s' %
-                                      (self.binary, p.returncode))
-                sys.exit(p.returncode)
+                raise zc.buildout.UserError('could not apply %s' % patch)
         finally:
             os.chdir(cwd)
         return path
 
     def use_patch_library(self, path, patch):
         """Applies a `patch` to `path` using patchlib."""
-        patch = patchlib.read_patch(patch)
+        name = patch
+        patch = patchlib.read_patch(name)
         for key in ('source', 'target'):
             patch[key] = [os.path.join(path, p).rstrip('\n')
                           for p in patch[key]]
-        patchlib.apply_patch(patch)
+        logger.info('in %s...' % path)
+        if not patchlib.apply_patch(patch):
+            raise zc.buildout.UserError('could not apply %s' % name)
         return path

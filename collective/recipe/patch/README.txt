@@ -164,6 +164,7 @@ Running the buildout gives us:
     ...
     Got demo 1.0.
     patch: reading patch .../demo.patch
+    ...
     patch: patching file demo.py
     ...
 
@@ -226,3 +227,82 @@ Running the buildout gives us:
     >>> cat(sample_buildout, 'eggs', 'demo-1.0-py2.6.egg', 'demo.py')
     # demo egg
     # patching
+
+Broken patches
+----------------
+
+If one of the patches is broken:
+
+    >>> write(sample_buildout, 'missing-file.patch',
+    ... """diff --git missing-file.py missing-file.py
+    ... --- missing-file.py
+    ... +++ missing-file.py
+    ... @@ -1,2 +0 @@
+    ... -# BROKEN
+    ... -# PATCH
+    ... """)
+
+When you try to apply multiple patches, it will fail to apply any
+subsequent patches, letting you fix the problem:
+    
+    >>> write(sample_buildout, 'buildout.cfg',
+    ... """
+    ... [buildout]
+    ... parts = demo-patch
+    ... index = demo/dist/
+    ...
+    ... [demo-patch]
+    ... recipe = collective.recipe.patch
+    ... egg = demo==1.0
+    ... patches = missing-file.patch
+    ...           demo.patch
+    ... """)
+
+Running the buildout gives us:
+
+    >>> print system(buildout)
+    Not found: demo/dist/zc.buildout/
+    ...
+    Installing demo-patch.
+    ...
+    Got demo 1.0.
+    patch: reading patch .../missing-file.patch
+    ...
+    patch: source/target file does not exist
+    --- .../missing-file.py
+    +++ .../missing-file.py
+    While:
+      Installing demo-patch.
+    Error: could not apply .../missing-file.patch
+
+    >>> cat(sample_buildout, 'develop-eggs', 'demo-1.0-py2.6.egg', 'demo.py')
+    # demo egg
+
+Or when using an external binary:
+
+    >>> write(sample_buildout, 'buildout.cfg',
+    ... """
+    ... [buildout]
+    ... parts = demo-patch
+    ... index = demo/dist/
+    ...
+    ... [demo-patch]
+    ... recipe = collective.recipe.patch
+    ... patch-binary = patch
+    ... egg = demo==1.0
+    ... patches = missing-file.patch
+    ...           demo.patch
+    ... """)
+    >>> print system(buildout)
+    Not found: demo/dist/zc.buildout/
+    ...
+    Installing demo-patch.
+    patch: reading patch .../missing-file.patch
+    ...
+    patch: patch: **** malformed patch at line 6:
+    While:
+      Installing demo-patch.
+    Error: could not apply .../missing-file.patch
+
+    >>> cat(sample_buildout, 'develop-eggs', 'demo-1.0-py2.6.egg', 'demo.py')
+    # demo egg

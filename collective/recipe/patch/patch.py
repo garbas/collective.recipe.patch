@@ -311,6 +311,7 @@ from os import unlink
 from pprint import pprint
 
 def apply_patch(patch):
+  success = True
   total = len(patch["source"])
   for fileno, filename in enumerate(patch["source"]):
 
@@ -319,9 +320,11 @@ def apply_patch(patch):
       f2patch = patch["target"][fileno]
       if not exists(f2patch):
         warning("source/target file does not exist\n--- %s\n+++ %s" % (filename, f2patch))
+        success = False
         continue
     if not isfile(f2patch):
       warning("not a file - %s" % f2patch)
+      success = False
       continue
     filename = f2patch
 
@@ -375,6 +378,7 @@ def apply_patch(patch):
     else:
       if hunkno < len(patch["hunks"][fileno]):
         warning("premature end of source file %s at hunk %d" % (filename, hunkno+1))
+        success = False
 
     f2fp.close()
 
@@ -383,10 +387,12 @@ def apply_patch(patch):
         warning("already patched  %s" % filename)
       else:
         warning("source file is different - %s" % filename)
+        success = False
     if canpatch:
       backupname = filename+".orig"
       if exists(backupname):
         warning("can't backup original file to %s - aborting" % backupname)
+        success = False
       else:
         import shutil
         shutil.move(filename, backupname)
@@ -399,8 +405,10 @@ def apply_patch(patch):
           warning("invalid version is saved to %s" % filename+".invalid")
           # todo: proper rejects
           shutil.move(backupname, filename)
+          success = False
 
   # todo: check for premature eof
+  return success
 
 
 
