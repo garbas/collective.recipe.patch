@@ -3,6 +3,8 @@
 ================
 
 - Added option to use external patch binary instead of bundled python-patch
+- Lets you specify multiple patches.
+- Reapplies patches if any of them have changed.
 
 0.1 (xxxx-xx-xx)
 ==================
