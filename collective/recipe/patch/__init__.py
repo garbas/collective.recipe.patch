@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 """Recipe for applying patches"""
 
+import logging
+logger = logging.getLogger('patch')
+
 import os
+from subprocess import Popen, PIPE, STDOUT
+
 import zc.buildout
 import zc.recipe.egg
 import patch as patchlib
-from os.path import join
 from hashlib import sha1
-from logging import info
 
 
 class Recipe(object):
@@ -15,6 +18,7 @@ class Recipe(object):
 
     def __init__(self, buildout, name, options):
         self.buildout, self.name, self.options = buildout, name, options
+        self.apply_patch = self.binary_or_library(self.options)
         self.patcher = self.egg_or_path(self.options)
         self.patches = self.get_patches(self.options)
         if 'patch' in self.options:
@@ -55,6 +59,15 @@ class Recipe(object):
             except IOError:
                 raise zc.buildout.UserError('Patch cannot be read: %s' % patch)
 
+    def binary_or_library(self, options):
+        """Decides whether to apply patches with an external binary."""
+        self.binary = self.options.get('patch-binary')
+        if self.binary is None:
+            return self.use_patch_library
+        else:
+            return self.use_patch_binary
+        
+
     def egg_or_path(self, options):
         """Decides whether to apply patches to eggs or paths."""
         egg = options.get('egg')
@@ -92,17 +105,30 @@ class Recipe(object):
         """Patches a path with `patch`."""
         return self.apply_patch(self.options['path'], patch)
 
-    def apply_patch(self, path, patch):
-        """Applies a `patch` to `path`."""
-        patch_binary = self.options.get('patch-binary', None)
-        if patch_binary:
-            info('reading patch %s' % patch)
+    def use_patch_binary(self, path, patch):
+        """Applies a `patch` to `path` using an external binary."""
+        logger.info('reading patch %s' % patch)
+        cwd = os.getcwd()
+        try:
             os.chdir(path)
-            os.system('%s -p0 < %s' % (patch_binary, patch))
-        else:
-            patch = patchlib.read_patch(patch)
-            patch['source'] = [join(path,p).strip() for p in patch['source']]
-            patch['target'] = [join(path,p).strip() for p in patch['target']]
-            patchlib.apply_patch(patch)
+            p = Popen([self.binary, '-p0'],
+                      stdin=PIPE, stdout=PIPE, stderr=STDOUT,
+                      close_fds=True)
+            output = p.communicate(open(patch).read())[0]
+            [logger.info(line) for line in output.strip().split('\n')]
+            if p.returncode != 0:
+                zc.buildout.UserError('%s exited with status %s' %
+                                      (self.binary, p.returncode))
+                sys.exit(p.returncode)
+        finally:
+            os.chdir(cwd)
+        return path
 
+    def use_patch_library(self, path, patch):
+        """Applies a `patch` to `path` using patchlib."""
+        patch = patchlib.read_patch(patch)
+        for key in ('source', 'target'):
+            patch[key] = [os.path.join(path, p).rstrip('\n')
+                          for p in patch[key]]
+        patchlib.apply_patch(patch)
         return path

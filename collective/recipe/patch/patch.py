@@ -12,7 +12,11 @@ __version__ = "8.06-1"
 
 import logging
 import re
-from logging import debug, info, warning
+
+logger = logging.getLogger('patch')
+debug = logger.debug
+info = logger.info
+warning = logger.warning
 
 
 debugmode = False

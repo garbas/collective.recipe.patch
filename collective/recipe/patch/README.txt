@@ -74,9 +74,9 @@ Running the buildout gives us:
     Installing demo-patch.
     ...
     Got demo 1.0.
-    root: reading patch .../demo.patch
+    patch: reading patch .../demo.patch
     ...
-    root: successfully patched ...develop-eggs/demo-1.0-py2.6.egg/demo.py
+    patch: successfully patched ...develop-eggs/demo-1.0-py2.6.egg/demo.py
 
     >>> ls(sample_buildout, 'develop-eggs', 'demo-1.0-py2.6.egg')
     d  EGG-INFO
@@ -127,12 +127,12 @@ Running the buildout gives us:
     Installing demo-patch.
     ...
     Got demo 1.0.
-    root: reading patch .../demo.patch
+    patch: reading patch .../demo.patch
     ...
-    root: successfully patched ...develop-eggs/demo-1.0-py2.6.egg/demo.py
-    root: reading patch .../another.patch
+    patch: successfully patched ...develop-eggs/demo-1.0-py2.6.egg/demo.py
+    patch: reading patch .../another.patch
     ...
-    root: successfully patched ...develop-eggs/demo-1.0-py2.6.egg/demo.py
+    patch: successfully patched ...develop-eggs/demo-1.0-py2.6.egg/demo.py
 
     >>> cat(sample_buildout, 'develop-eggs', 'demo-1.0-py2.6.egg', 'demo.py')
     # patching
@@ -163,8 +163,8 @@ Running the buildout gives us:
     Installing demo-patch.
     ...
     Got demo 1.0.
-    root: reading patch .../demo.patch
-    patching file demo.py
+    patch: reading patch .../demo.patch
+    patch: patching file demo.py
     ...
 
     >>> ls(sample_buildout, 'develop-eggs', 'demo-1.0-py2.6.egg')
@@ -214,7 +214,7 @@ Running the buildout gives us:
     Got demo 1.0.
     Installing demo-patch.
     ...
-    root: successfully patched ...eggs/demo-1.0-py2.6.egg/demo.py
+    patch: successfully patched ...eggs/demo-1.0-py2.6.egg/demo.py
 
     >>> ls(sample_buildout, 'eggs', 'demo-1.0-py2.6.egg')
     d  EGG-INFO
