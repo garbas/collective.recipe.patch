@@ -1,4 +1,3 @@
-
 0.2 (2009-11-20)
 ================
 
@@ -10,4 +9,4 @@
 0.1 (2008-10-27)
 ==================
 
- - Created recipe with ZopeSkel [Rok Garbas].
+- Created recipe with ZopeSkel [Rok Garbas].

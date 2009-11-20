@@ -11,11 +11,9 @@ def read(*rnames):
 version = '0.2'
 
 long_description = (
-    read('README.txt')
-    + '\n' +
+    read('README.txt') + '\n'
     'Detailed Documentation\n'
-    '**********************\n'
-    + '\n' +
+    '**********************\n\n' +
     read('collective', 'recipe', 'patch', 'README.txt')
     + '\n' +
     'Contributors\n' 
@@ -65,4 +63,5 @@ setup(name='collective.recipe.patch',
       extras_require=dict(tests=tests_require),
       test_suite = 'collective.recipe.patch.tests.test_docs.test_suite',
       entry_points=entry_points,
+      zip_safe = True,
       )

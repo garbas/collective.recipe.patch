@@ -1,21 +1,26 @@
-
 Supported options
 =================
 
 The recipe supports the following options:
 
 path
-    Define a directory in which the patch should be applied.
-    example: src/some/directory/
+    Define a directory in which the patch should be applied. For
+    example::
+
+        path = src/some/directory/
 
 egg
-    Define which egg should be patched. You can also pin to version.
-    example: some.egg<=1.1.1
+    Define which egg should be patched. You can also pin to a specific
+    version. For example::
+
+        egg = some.egg<=1.1.1
 
 patches
-    Paths to patch files. These patches are applied in order.
-    example: patches/my_very_sprecial.patch
-             patches/another_loverly.patch
+    Paths to patch files. These patches are applied in order. For
+    example::
+
+        patches = patches/my_very_sprecial.patch
+                  patches/another_loverly.patch
 
 Example usage
 =============
