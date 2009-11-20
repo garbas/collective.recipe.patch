@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 """Recipe for applying patches"""
+from __future__ import absolute_import
 
 import logging
 logger = logging.getLogger('patch')
 
+from hashlib import sha1
 import os
 from subprocess import Popen, PIPE, STDOUT
 
 import zc.buildout
 import zc.recipe.egg
-import patch as patchlib
-from hashlib import sha1
+
+from . import patch as patchlib
 
 
 class Recipe(object):
