@@ -16,6 +16,10 @@ class Recipe(object):
         self.buildout, self.name, self.options = buildout, name, options
         self.patcher = self.egg_or_path(self.options)
         self.patches = self.get_patches(self.options)
+        if 'patch' in self.options:
+            del self.options['patch']
+        if 'patches' in self.options:
+            del self.options['patches']
         self.options['hashes'] = str(list(self.calculate_hashes(self.patches)))
         self.options['python'] = self.buildout['buildout']['python']
         self.options['executable'] = self.buildout[self.options['python']]['executable']
