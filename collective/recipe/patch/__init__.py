@@ -50,7 +50,7 @@ class Recipe(object):
         """Yields (pathname, SHA1 digest) for each file in `patches`."""
         for patch in patches:
             try:
-                yield (patch, sha1(open(patch).read()).digest())
+                yield (patch, sha1(open(patch).read()).hexdigest())
             except IOError:
                 raise zc.buildout.UserError('Patch cannot be read: %s' % patch)
 
