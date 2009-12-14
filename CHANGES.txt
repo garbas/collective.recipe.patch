@@ -1,4 +1,7 @@
-0.2.1 (unreleased)
+0.2.2 (unreleased)
+==================
+
+0.2.1 (2009-12-14)
 ==================
 
 - made tests independent of python version
