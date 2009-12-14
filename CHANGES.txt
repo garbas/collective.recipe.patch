@@ -1,11 +1,15 @@
-0.2.2 (unreleased)
+0.2.2 (2009-12-14)
 ==================
+
+- make tests pass again [garbas]
+
 
 0.2.1 (2009-12-14)
 ==================
 
 - made tests independent of python version
 - bring back python2.4 compatibility
+
 
 0.2 (2009-11-20)
 ================
@@ -15,7 +19,8 @@
 - Reapplies patches if any of them have changed.
 - Aborts if any of the patches are broken.
 
+
 0.1 (2008-10-27)
 ==================
 
-- Created recipe with ZopeSkel [Rok Garbas].
+- Created recipe with ZopeSkel [garbas]
