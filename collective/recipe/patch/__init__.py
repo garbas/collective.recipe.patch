@@ -51,7 +51,7 @@ class Recipe(object):
             patches = patch
         elif patch is not None and patches is not None:
             raise zc.buildout.UserError('Provide only the patches option.')
-        return [os.path.realpath(p) for p in patches.split('\n')]
+        return [os.path.realpath(p) for p in patches.strip().split('\n')]
 
     @staticmethod
     def calculate_hashes(patches):
@@ -131,8 +131,7 @@ class Recipe(object):
         name = patch
         patch = patchlib.read_patch(name)
         for key in ('source', 'target'):
-            patch[key] = [os.path.join(path, p).rstrip('\n')
-                          for p in patch[key]]
+            patch[key] = [os.path.join(path, p).strip() for p in patch[key]]
         logger.info('in %s...' % path)
         if not patchlib.apply_patch(patch):
             raise zc.buildout.UserError('could not apply %s' % name)

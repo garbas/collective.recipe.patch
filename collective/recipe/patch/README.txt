@@ -126,8 +126,9 @@ another.patch should be applied after demo.patch:
     ... [demo-patch]
     ... recipe = collective.recipe.patch
     ... egg = demo==1.0
-    ... patches = demo.patch
-    ...           another.patch
+    ... patches =
+    ...     demo.patch
+    ...     another.patch
     ... """)
 
 Running the buildout gives us:
